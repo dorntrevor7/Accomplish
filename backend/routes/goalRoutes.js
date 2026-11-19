@@ -11,6 +11,6 @@ router.route('/').get(getGoals).post(setGoal)
 
 // after /api/goals/ we will need a specific param 
 // to update or delete that certain goal
-router.route('/:id').put(updateGoal).delete(deleteGoal)
+router.route('/:id').patch(updateGoal).delete(deleteGoal)
 
 module.exports = router

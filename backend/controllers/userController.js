@@ -3,7 +3,7 @@ const asyncHandler = require('express-async-handler')
 const Users = require('../models/userModel')
 
 // @desc Get users
-// @route  GET /api/users
+// @route  GET /api/users/me
 // @access Public
 const getUsers = asyncHandler(async (req, res) => {
     const users = await Users.find()
@@ -13,8 +13,8 @@ const getUsers = asyncHandler(async (req, res) => {
 
 // @desc create user
 // @route  POST /api/users/:id
-// @access Private 
-const createUser = asyncHandler(async (req, res) => {
+// @access Public 
+const registerUser = asyncHandler(async (req, res) => {
     if(!req?.body?.name){
         res.status(400)
         throw new Error('No name inputed')
@@ -50,6 +50,10 @@ const updateUser = asyncHandler(async (req, res) => {
     res.status(200).json(user)
 })
 
+const loginUser = (req, res) => {
+    res.json({ message: 'Login User'})
+}
+
 // @desc delete user
 // @route  DELETE /api/users/:id
 // @access Private 
@@ -64,4 +68,4 @@ const deleteUser = asyncHandler(async (req, res) => {
     res.status(200).json(user)
 })
 
-module.exports = {getUsers, createUser, updateUser, deleteUser}
+module.exports = {getUsers, registerUser, updateUser, deleteUser}

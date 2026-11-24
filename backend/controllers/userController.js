@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler')
-
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcryptjs')
 const Users = require('../models/userModel')
 
 // @desc Get users
@@ -15,18 +16,53 @@ const getUsers = asyncHandler(async (req, res) => {
 // @route  POST /api/users/:id
 // @access Public 
 const registerUser = asyncHandler(async (req, res) => {
-    if(!req?.body?.name){
+    const { name, email, password } = req.body
+
+    if(!name || !email || !password) {
         res.status(400)
-        throw new Error('No name inputed')
+        throw new Error('Please add all fields')
     }
 
+    const userExists = await Users.findOne({email})
+
+    if(userExists) {
+        res.status(400)
+        throw new Error('User already exists')
+    }
+
+    //  Hash password 
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassword = await bcrypt.hash(password, salt)
+
+    // Create User 
     const user = await Users.create({
-        name: req.body.name,
-        email: req.body.email,
-        password: req.body.password,
+        name,
+        email,
+        password: hashedPassword
     })
 
-    res.status(200).json(user)
+    if(user){
+        res.status(201).json({
+            _id: user.id,
+            name: user.name,
+            email: user.email
+        })
+    } else {
+        res.status(400)
+        throw new Error({ message: 'Invalid User Data'})
+    }
+
+    // if(!req?.body?.name){
+    //     res.status(400)
+    //     throw new Error('No name inputed')
+    // }
+
+    // const user = await Users.create({
+    //     name: req.body.name,
+    //     email: req.body.email,
+    //     password: req.body.password,
+    // })
+
 })
 
 // @desc update user

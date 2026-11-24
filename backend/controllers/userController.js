@@ -54,6 +54,10 @@ const loginUser = (req, res) => {
     res.json({ message: 'Login User'})
 }
 
+const getMe = (req, res) => {
+    res.json({message: 'Got User'})
+}
+
 // @desc delete user
 // @route  DELETE /api/users/:id
 // @access Private 
@@ -68,4 +72,4 @@ const deleteUser = asyncHandler(async (req, res) => {
     res.status(200).json(user)
 })
 
-module.exports = {getUsers, registerUser, updateUser, deleteUser}
+module.exports = {getUsers, registerUser, updateUser, deleteUser, loginUser, getMe}

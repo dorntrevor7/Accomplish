@@ -45,7 +45,8 @@ const registerUser = asyncHandler(async (req, res) => {
         res.status(201).json({
             _id: user.id,
             name: user.name,
-            email: user.email
+            email: user.email,
+            token: generateToken(user._id)
         })
     } else {
         res.status(400)
@@ -86,13 +87,43 @@ const updateUser = asyncHandler(async (req, res) => {
     res.status(200).json(user)
 })
 
-const loginUser = (req, res) => {
-    res.json({ message: 'Login User'})
+const loginUser = asyncHandler(async (req, res) => {
+    const {email, password} = req.body
+
+    const user = await Users.findOne({email})
+
+    if(user && (await bcrypt.compare(password, user.password))) {
+        res.json({
+            _id:user.id,
+            name: user.name,
+            email: user.email,
+            token: generateToken(user._id)
+        })
+    } else {
+        res.status(400)
+        throw new Error('Invalid Credentials')
+    }
+})
+
+// Generate JWT
+const generateToken = (id) =>{
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
+        expiresIn: '30d'
+    })
 }
 
-const getMe = (req, res) => {
-    res.json({message: 'Got User'})
-}
+// @desc GET user data
+// @route  GET /api/users/:id
+// @access Private 
+const getMe = asyncHandler(async (req, res) => {
+    const {_id, name, email} = await Users.findById(req.user.id)
+
+    res.status(200).json({
+        _id,
+        name,
+        email
+    })
+})
 
 // @desc delete user
 // @route  DELETE /api/users/:id
